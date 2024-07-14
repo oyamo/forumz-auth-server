@@ -1,7 +1,6 @@
 package user
 
 import (
-	"auth/internal/pkg"
 	"context"
 	"crypto/rsa"
 	"database/sql"
@@ -9,6 +8,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"go.uber.org/zap"
 	"time"
 )

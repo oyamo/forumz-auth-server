@@ -1,12 +1,12 @@
 package web
 
 import (
-	"auth/internal/domain/connections"
-	"auth/internal/domain/user"
-	"auth/internal/interfaces/web/handlers"
-	"auth/internal/pkg"
 	"crypto/rsa"
 	"github.com/gin-gonic/gin"
+	"github.com/oyamo/forumz-auth-server/internal/domain/connections"
+	"github.com/oyamo/forumz-auth-server/internal/domain/user"
+	"github.com/oyamo/forumz-auth-server/internal/interfaces/web/handlers"
+	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"go.uber.org/zap"
 )
 

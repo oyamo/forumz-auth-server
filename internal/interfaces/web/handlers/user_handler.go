@@ -1,15 +1,15 @@
 package handlers
 
 import (
-	"auth/internal/domain/user"
-	"auth/internal/interfaces/web/dto"
-	"auth/internal/pkg"
 	"context"
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/oyamo/forumz-auth-server/internal/domain/user"
+	"github.com/oyamo/forumz-auth-server/internal/interfaces/web/dto"
+	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"go.uber.org/zap"
 	"net/http"
 )

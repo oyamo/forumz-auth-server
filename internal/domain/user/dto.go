@@ -1,8 +1,8 @@
 package user
 
 import (
-	"auth/internal/pkg"
 	"github.com/google/uuid"
+	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"time"
 )
 

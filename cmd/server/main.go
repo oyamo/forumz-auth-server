@@ -1,11 +1,11 @@
 package main
 
 import (
-	"auth/internal/domain/connections"
-	"auth/internal/domain/user"
-	"auth/internal/infrastructure/persistance/postgres"
-	"auth/internal/interfaces/web"
-	"auth/internal/pkg"
+	"github.com/oyamo/forumz-auth-server/internal/domain/connections"
+	"github.com/oyamo/forumz-auth-server/internal/domain/user"
+	"github.com/oyamo/forumz-auth-server/internal/infrastructure/persistance/postgres"
+	"github.com/oyamo/forumz-auth-server/internal/interfaces/web"
+	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"go.uber.org/zap"
 	"log"
 )

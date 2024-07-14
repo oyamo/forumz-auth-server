@@ -1,0 +1,6 @@
+*.txt
+*.p12
+*.pub
+*.sh
+*.pem
+.idea

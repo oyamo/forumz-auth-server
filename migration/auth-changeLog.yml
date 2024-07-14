@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: auth_schema_20240709_1
+      author: Oyamo Brian
+      runOnChange: false
+      runInTransaction: true
+      changes:
+        sqlFile:
+          path: schema/person.sql
+          encoding: UTF-8
+          relativeToChangelogFile: false
+          endDelimiter: //
+          splitStatements: true
+  - changeSet:
+      id: auth_schema_20240709_2
+      author: Oyamo Brian
+      runOnChange: false
+      runInTransaction: true
+      changes:
+        sqlFile:
+          path: schema/connection.sql
+          encoding: UTF-8
+          relativeToChangelogFile: false
+          endDelimiter: //
+          splitStatements: true

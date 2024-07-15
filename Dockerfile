@@ -2,8 +2,6 @@
 
 FROM golang:1.22-alpine AS builder
 
-ARG BUILD_GITLAB_USERNAME
-ARG BUILD_GITLAB_TOKEN
 
 ENV CGO_ENABLED=0 \
     GOOS=linux \

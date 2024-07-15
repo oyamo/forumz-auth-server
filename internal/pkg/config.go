@@ -12,6 +12,7 @@ type Config struct {
 	CertPassword        string
 	KafkaConsumerServer string
 	KafkaProducerServer string
+	RedisServer         string
 }
 
 const (
@@ -21,6 +22,7 @@ const (
 	envCertPassword   = "AUTH_SERVICE_CERT_PASSWORD"
 	envKafkaConsumer  = "AUTH_SERVICE_KAFKA_CONSUMER"
 	envKafkaProducer  = "AUTH_SERVICE_KAFKA_PRODUCER"
+	envRedisServer    = "AUTH_SERVICE_REDIS_SERVER"
 )
 
 func EnvNotSetError(env string) error {
@@ -58,6 +60,11 @@ func NewConfig() (*Config, error) {
 		return nil, EnvNotSetError(envKafkaConsumer)
 	}
 
+	redisServer, ok := os.LookupEnv(envRedisServer)
+	if !ok {
+		return nil, EnvNotSetError(envRedisServer)
+	}
+
 	return &Config{
 		DatabaseDSN:         dbDSN,
 		P12Certificate:      p12Cert,
@@ -65,5 +72,6 @@ func NewConfig() (*Config, error) {
 		CertPassword:        certPassword,
 		KafkaConsumerServer: kafkaConsumer,
 		KafkaProducerServer: kafkaProducer,
+		RedisServer:         redisServer,
 	}, nil
 }

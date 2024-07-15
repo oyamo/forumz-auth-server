@@ -1,20 +1,73 @@
 package handlers
 
 import (
-	"auth/internal/interfaces/web/dto"
 	"crypto/rsa"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/oyamo/forumz-auth-server/internal/interfaces/web/dto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type MiddlewareHandler struct {
 	publicKey *rsa.PublicKey
 	logger    *zap.SugaredLogger
+}
+
+var (
+	httpRequestsTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests",
+		},
+		[]string{"method", "endpoint"},
+	)
+
+	httpRequestDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "Duration of HTTP requests in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "endpoint", "status"},
+	)
+
+	httpResponseStatus = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_response_status",
+			Help: "HTTP response status codes",
+		},
+		[]string{"method", "endpoint", "status"},
+	)
+)
+
+func (mw *MiddlewareHandler) Metrics() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+
+		// Record metrics after request is processed
+		duration := time.Since(start)
+		status := strconv.Itoa(c.Writer.Status())
+		method := c.Request.Method
+		endpoint := c.FullPath()
+
+		// Increment total requests counter
+		httpRequestsTotal.WithLabelValues(method, endpoint).Inc()
+
+		// Record request duration
+		httpRequestDuration.WithLabelValues(method, endpoint, status).Observe(duration.Seconds())
+
+		// Increment status counter
+		httpResponseStatus.WithLabelValues(method, endpoint, status).Inc()
+	}
 }
 
 func (mw *MiddlewareHandler) AddRequestID(c *gin.Context) {

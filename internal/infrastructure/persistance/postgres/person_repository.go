@@ -1,10 +1,10 @@
 package postgres
 
 import (
-	"auth/internal/domain/user"
 	"context"
 	"database/sql"
 	"github.com/google/uuid"
+	"github.com/oyamo/forumz-auth-server/internal/domain/user"
 )
 
 type psqlPersonRespository struct {

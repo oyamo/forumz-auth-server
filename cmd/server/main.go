@@ -1,11 +1,15 @@
 package main
 
 import (
-	"auth/internal/domain/connections"
-	"auth/internal/domain/user"
-	"auth/internal/infrastructure/persistance/postgres"
-	"auth/internal/interfaces/web"
-	"auth/internal/pkg"
+	"context"
+	"errors"
+	"github.com/oyamo/forumz-auth-server/internal/domain/connections"
+	"github.com/oyamo/forumz-auth-server/internal/domain/user"
+	"github.com/oyamo/forumz-auth-server/internal/infrastructure/persistance/postgres"
+	redis_cache "github.com/oyamo/forumz-auth-server/internal/infrastructure/persistance/redis-cache"
+	"github.com/oyamo/forumz-auth-server/internal/interfaces/web"
+	"github.com/oyamo/forumz-auth-server/internal/pkg"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"log"
 )
@@ -23,6 +27,17 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	// Set up OpenTelemetry.
+	otelShutdown, err := pkg.SetupOTelSDK(context.Background())
+	if err != nil {
+		return
+	}
+
+	// Handle shutdown properly so nothing leaks.
+	defer func() {
+		err = errors.Join(err, otelShutdown(context.Background()))
+	}()
+
 	privateKey, err := getPrivateKeyFromP12(conf.P12Certificate, conf.CertPassword)
 	if err != nil {
 		logger.Fatal(err)
@@ -39,12 +54,22 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: conf.RedisServer,
+	})
+
+	err = redisClient.Ping(context.Background()).Err()
+	if err != nil {
+		logger.Fatalf("error dialing redis: %s\n", err)
+	}
+
 	jsonSender := pkg.NewJSONSender(conf)
 
 	personRepo := postgres.NewPersonRepository(conn)
+	redisPersonRepo := redis_cache.NewRedisPersonRepository(redisClient)
 	connectionRepo := postgres.NewConnectionRepository(conn)
 	connectionsUC := connections.NewUseCase(connectionRepo)
-	personsUC := user.NewUseCase(personRepo, logger, conf, privateKey, publicKey)
+	personsUC := user.NewUseCase(personRepo, redisPersonRepo, logger, conf, privateKey, publicKey)
 
 	router := web.NewRouter(logger, jsonSender, connectionsUC, personsUC, publicKey)
 	ginEngine := router.Setup()

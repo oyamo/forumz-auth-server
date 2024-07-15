@@ -109,9 +109,15 @@ func (handler *ConnectionHandler) Connect(c *gin.Context) {
 		return
 	}
 
+	recipient, err := handler.personUseCase.UserInfo(userId, ctx)
+	if err != nil {
+		handler.logger.Error(err)
+		return
+	}
+
 	notification := map[string]interface{}{
 		"datetimeCreated": time.Now(),
-		"recipient":       userId,
+		"recipient":       recipient.EmailAddress,
 		"type":            "Connection",
 		"additionalInfo": map[string]interface{}{
 			"connectionTo":       req.ConnectionTo,

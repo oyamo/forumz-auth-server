@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS person (
     first_name varchar(32) not null,
     last_name varchar(32) not null,
     email_address varchar(64) unique not null,
-    password_hash varchar(256) unique not null ,
+    password_hash varchar(256) not null ,
     username varchar(32) unique not null,
     status varchar(12) not null default 'Active',
     dob timestamp,

@@ -15,6 +15,7 @@ import (
 
 type UseCase struct {
 	personRepository PersonRepository
+	redisRepository  PersonRepository
 	logger           *zap.SugaredLogger
 	conf             *pkg.Config
 	privateKey       *rsa.PrivateKey
@@ -78,6 +79,12 @@ func (u *UseCase) Register(ctx context.Context, dto *RegistrationRequest) (*Upda
 	err = u.personRepository.Upsert(ctx, &person)
 	if err != nil {
 		u.logger.Errorw("error while upserting user", "error", err)
+		return nil, err
+	}
+
+	err = u.redisRepository.Upsert(ctx, &person)
+	if err != nil {
+		u.logger.Errorw("error while upserting user in cache", "error", err)
 		return nil, err
 	}
 
@@ -193,10 +200,20 @@ func (u *UseCase) Update(ctx context.Context, dto *UpdateInfoRequest) (*UpdateIn
 }
 
 func (u *UseCase) UserInfo(id uuid.UUID, ctx context.Context) (*UserInfo, error) {
-	info, err := u.personRepository.Find(ctx, id)
+	var info *Person
+	info, err := u.redisRepository.Find(ctx, id)
 	if err != nil {
-		u.logger.Errorw("error while finding user", "error", err)
-		return nil, err
+		info, err = u.personRepository.Find(ctx, id)
+		if err != nil {
+			u.logger.Errorw("error while finding user", "error", err)
+			return nil, err
+		}
+
+		err = u.redisRepository.Upsert(ctx, info)
+		if err != nil {
+			u.logger.Errorw("error while upserting user in cache", "error", err)
+			return nil, err
+		}
 	}
 
 	ret := UserInfo{
@@ -213,12 +230,13 @@ func (u *UseCase) UserInfo(id uuid.UUID, ctx context.Context) (*UserInfo, error)
 	return &ret, nil
 }
 
-func NewUseCase(personRepository PersonRepository, logger *zap.SugaredLogger, conf *pkg.Config, privatekey *rsa.PrivateKey, publickey *rsa.PublicKey) *UseCase {
+func NewUseCase(personRepository, redisRepository PersonRepository, logger *zap.SugaredLogger, conf *pkg.Config, privatekey *rsa.PrivateKey, publickey *rsa.PublicKey) *UseCase {
 	return &UseCase{
 		personRepository: personRepository,
 		logger:           logger,
 		conf:             conf,
 		privateKey:       privatekey,
 		publicKey:        publickey,
+		redisRepository:  redisRepository,
 	}
 }

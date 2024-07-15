@@ -7,6 +7,7 @@ import (
 	"github.com/oyamo/forumz-auth-server/internal/domain/user"
 	"github.com/oyamo/forumz-auth-server/internal/interfaces/web/handlers"
 	"github.com/oyamo/forumz-auth-server/internal/pkg"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -25,7 +26,10 @@ func (router *Router) Setup() *gin.Engine {
 	middlewareHandler := handlers.NewMiddlewareHandler(router.pub, router.logger)
 
 	r := gin.Default()
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	v1 := r.Group("/api/v1")
+	v1.Use(middlewareHandler.Metrics())
 	v1.Use(middlewareHandler.AddRequestID)
 
 	auth := v1.Group("/auth")

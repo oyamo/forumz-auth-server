@@ -1,0 +1,292 @@
+openapi: 3.0.0
+info:
+  title: Authentication
+  version: 1.0.0
+servers:
+  - url: localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - default
+      summary: Register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                firstName: Oyamo
+                lastName: Parody
+                emailAddress: oyamo2@gmail.com
+                userName: oyamo_
+                password: Testing@12345
+                dob: "2000-07-10"
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Sun, 14 Jul 2024 06:35:15 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "365"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190aff3-e593-742c-9024-dc9e4fdb0b16
+                description: Success
+                data:
+                  id: 0190aff3-e5f4-7606-8115-8b098256b780
+                  firstName: Oyamo
+                  lastName: Parody 2
+                  emailAddress: oyamo42@gmail.com
+                  username: oyamo__
+                  dob: "2000-07-10T00:00:00Z"
+                  datetimeCreated: "2024-07-14T09:35:15.319173304+03:00"
+                  lastModified: "2024-07-14T09:35:15.319173404+03:00"
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - default
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: oyamo.xyz@gmail.com
+                password: Testing@12345
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Thu, 11 Jul 2024 17:36:05 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "1109"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190a2dd-d489-7c22-810c-32ea1a169b6e
+                description: Success
+                data:
+                  accessToken: >-
+                    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjA4MDU3NjUsImlhdCI6MTcyMDcxOTM2NSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdCIsImp0aSI6IjRkZGFjZjExLTMzMjAtNDA3MC04MWFkLWZmNTk5ODMwYWY5ZSIsIm5iZiI6MTcyMDcxOTM2NSwic3ViIjoiMDE5MDliNTItOTE0Ni03NDRhLTg5N2YtN2I5YWI3NjllMmM1In0.GVZ6ncN0qzNXVHegS3Dk8wL2KZZ3Df2PtvRlQMaahv6FocLFz0b2tIiYlCNTzo63RspVGOkhY-TMdk0OObTRuHFlOnZxXZlHf-mhYPq0VZTuHLWmJ3pZDnmOO-mJMYSiPAmktO_6EE5_LQUYeNZ9rtoQgdp9MPXSVm1Ve-AVG_kMmK-Tdkv5YJY4RZVeS9Uy1EcPUY56KyrJB8mf6N4dkfAI44KdM292vTyD9c88uUlHX1a-onye3VbV3ECJJQCx5mE1ZJipc2gNO7r_iQ7sb-1h6favKYHJI5Y-Lx2Om1m5jN7_bhAmdawbSzbHqN_bp3xNkTNqv6yi3pCGsWWgTsZPbH2dBHlrEeTn85_3gOFud-8uZCq4kyPFT2ZXxtVhto-NYz-Q4rvpQcJxcyTaRftU5Q4ukpvYrWav0bN5DE_NasH2YVvbPAuuN9C_w7S5mOMefzDPrroD3Ec9y1tdk2TOsX7aLgyKPbQA8i0ifo7jxEEsjR5S1zIbLd-Snig2XxKkfnsX8U905bh6tsnKxIrjTDUsJ9Mzzvt-P8yZt8Za-vbpwimB_C0G_jXutOoIRzm1cKZY0lPjMdj5zdrYJWsskrYIevz26LQ2NQCUxHokJwep_ECIwjF0vBtc2f4Iyp8tLoMfGfU9Q9RWimwu1KmMBzr283BxizOXpfqlHFg
+                  expiresIn: 86399
+                  sub: 01909b52-9146-744a-897f-7b9ab769e2c5
+  /api/v1/auth/persons/{uuid}:
+    get:
+      tags:
+        - default
+      summary: UserInfo
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: The unique identifier for the user
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Thu, 11 Jul 2024 16:26:11 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "351"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190a29d-d86c-7069-bcee-e64f4f860a6f
+                description: Success
+                data:
+                  id: 01909b52-9146-744a-897f-7b9ab769e2c5
+                  firstName: Oyamo
+                  lastName: Brian
+                  emailAddress: oyamo.xyz@gmail.com
+                  username: oyamo
+                  dob: "2000-07-10T00:00:00Z"
+                  datetimeCreated: "2024-07-10T06:26:38.023072Z"
+                  lastModified: "2024-07-10T09:26:38.023072+03:00"
+    patch:
+      tags:
+        - default
+      summary: Update user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                firstName: Oyamo
+                lastName: Brian
+                dob: "2000-07-10"
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Thu, 11 Jul 2024 18:03:22 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "351"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190a2f6-ce3c-78d3-9924-4ac5c99eaff8
+                description: Success
+                data:
+                  id: 01909b52-9146-744a-897f-7b9ab769e2c5
+                  firstName: Oyamo
+                  lastName: Brian
+                  emailAddress: oyamo.xyz@gmail.com
+                  username: oyamo
+                  dob: "2000-07-10T00:00:00Z"
+                  datetimeCreated: "2024-07-10T06:26:38.023072Z"
+                  lastModified: "2024-07-10T09:26:38.023072+03:00"
+  /api/v1/connections/:
+    post:
+      tags:
+        - default
+      summary: Create Connection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                connectionTo: 0190a2fa-98b2-76c4-853a-8ba1c7d5d125
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Thu, 11 Jul 2024 19:16:51 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "113"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190a33a-1877-712c-910a-c9f7abfc1ad9
+                description: Connection successfully created.
+                data: null
+  /api/v1/connections:
+    delete:
+      tags:
+        - default
+      summary: Delete Connection
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Thu, 11 Jul 2024 19:16:44 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "113"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190a339-fc00-777e-ba62-2adc890da3ac
+                description: Connection successfully deleted.
+                data: null
+    get:
+      tags:
+        - default
+      summary: View Connections
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Thu, 11 Jul 2024 19:28:52 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: "219"
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                requestId: 0190a345-1779-7030-8278-11d9fc3626ed
+                description: Success
+                data:
+                  - firstName: Oyamo
+                    lastName: Parody
+                    id: 0190a2fa-98b2-76c4-853a-8ba1c7d5d125
+                    datetimeCreated: "2024-07-11T19:16:51.960159Z"

@@ -11,7 +11,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type MiddlewareHandler struct {
@@ -46,8 +48,26 @@ var (
 	)
 )
 
-func (mw *MiddlewareHandler) Metrics(c *gin.Context) {
+func (mw *MiddlewareHandler) Metrics() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
 
+		// Record metrics after request is processed
+		duration := time.Since(start)
+		status := strconv.Itoa(c.Writer.Status())
+		method := c.Request.Method
+		endpoint := c.FullPath()
+
+		// Increment total requests counter
+		httpRequestsTotal.WithLabelValues(method, endpoint).Inc()
+
+		// Record request duration
+		httpRequestDuration.WithLabelValues(method, endpoint, status).Observe(duration.Seconds())
+
+		// Increment status counter
+		httpResponseStatus.WithLabelValues(method, endpoint, status).Inc()
+	}
 }
 
 func (mw *MiddlewareHandler) AddRequestID(c *gin.Context) {

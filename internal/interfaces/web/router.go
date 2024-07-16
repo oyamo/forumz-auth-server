@@ -8,6 +8,7 @@ import (
 	"github.com/oyamo/forumz-auth-server/internal/interfaces/web/handlers"
 	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -17,11 +18,12 @@ type Router struct {
 	userUC       *user.UseCase
 	jsonSender   *pkg.JSONSender
 	pub          *rsa.PublicKey
+	tracer       trace.Tracer
 }
 
 func (router *Router) Setup() *gin.Engine {
 
-	userHandler := handlers.NewUserHandler(router.userUC, router.logger, router.jsonSender)
+	userHandler := handlers.NewUserHandler(router.userUC, router.logger, router.jsonSender, router.tracer)
 	connectionHandler := handlers.NewConnectionHandler(router.connectionUC, router.userUC, router.logger, router.jsonSender)
 	middlewareHandler := handlers.NewMiddlewareHandler(router.pub, router.logger)
 
@@ -48,12 +50,13 @@ func (router *Router) Setup() *gin.Engine {
 	return r
 }
 
-func NewRouter(logger *zap.SugaredLogger, sender *pkg.JSONSender, connectionUC *connections.UseCase, userUC *user.UseCase, pub *rsa.PublicKey) *Router {
+func NewRouter(logger *zap.SugaredLogger, sender *pkg.JSONSender, connectionUC *connections.UseCase, userUC *user.UseCase, pub *rsa.PublicKey, tracer trace.Tracer) *Router {
 	return &Router{
 		logger:       logger,
 		connectionUC: connectionUC,
 		userUC:       userUC,
 		jsonSender:   sender,
 		pub:          pub,
+		tracer:       tracer,
 	}
 }

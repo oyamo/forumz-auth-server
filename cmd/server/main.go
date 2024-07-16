@@ -10,6 +10,7 @@ import (
 	"github.com/oyamo/forumz-auth-server/internal/interfaces/web"
 	"github.com/oyamo/forumz-auth-server/internal/pkg"
 	"github.com/redis/go-redis/v9"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 	"log"
 )
@@ -71,7 +72,8 @@ func main() {
 	connectionsUC := connections.NewUseCase(connectionRepo)
 	personsUC := user.NewUseCase(personRepo, redisPersonRepo, logger, conf, privateKey, publicKey)
 
-	router := web.NewRouter(logger, jsonSender, connectionsUC, personsUC, publicKey)
+	tracer := otel.Tracer("forumz-auth-server")
+	router := web.NewRouter(logger, jsonSender, connectionsUC, personsUC, publicKey, tracer)
 	ginEngine := router.Setup()
 
 	logger.Fatal(ginEngine.Run(":3000"))

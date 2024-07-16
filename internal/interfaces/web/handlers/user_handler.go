@@ -10,6 +10,7 @@ import (
 	"github.com/oyamo/forumz-auth-server/internal/domain/user"
 	"github.com/oyamo/forumz-auth-server/internal/interfaces/web/dto"
 	"github.com/oyamo/forumz-auth-server/internal/pkg"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -19,9 +20,13 @@ type UserHandler struct {
 	logger     *zap.SugaredLogger
 	validator  *validator.Validate
 	jsonSender *pkg.JSONSender
+	tracer     trace.Tracer
 }
 
 func (h *UserHandler) Register(c *gin.Context) {
+	ctx, span := h.tracer.Start(c, "UserHandler.Register")
+	defer span.End()
+
 	var responseDto dto.ResponseDto
 	requestIdCtx, exists := c.Get("id")
 	if !exists {
@@ -52,7 +57,6 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, "id", responseDto.RequestId)
 
 	ret, err := h.useCase.Register(ctx, &personDTO)
@@ -79,6 +83,9 @@ func (h *UserHandler) Register(c *gin.Context) {
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
+	ctx, span := h.tracer.Start(c, "UserHandler.Login")
+	defer span.End()
+
 	var responseDto dto.ResponseDto
 	requestIdCtx, exists := c.Get("id")
 	if !exists {
@@ -109,7 +116,6 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, "id", responseDto.RequestId)
 
 	ret, err := h.useCase.Login(ctx, &personDTO)
@@ -205,18 +211,23 @@ func (h *UserHandler) Update(c *gin.Context) {
 }
 
 func (h *UserHandler) UserInfo(c *gin.Context) {
+	ctx, span := h.tracer.Start(c, "UserHandler.userInfo")
+	defer span.End()
+
 	var responseDto dto.ResponseDto
 	requestIdCtx, exists := c.Get("id")
 	if !exists {
+		err := errors.New("cannot find id from context")
 		c.JSON(http.StatusInternalServerError, gin.H{})
-		h.logger.Errorw("cannot find id from context")
+		h.logger.Errorw("error while getting user info from context", "error", err)
 		return
 	}
 
 	requestId, ok := requestIdCtx.(uuid.UUID)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{})
-		h.logger.Errorw("requestId is not uuid type")
+		err := errors.New("requestId is not uuid type")
+		h.logger.Errorw("requestId is not uuid type", "error", err)
 		return
 	}
 
@@ -229,7 +240,6 @@ func (h *UserHandler) UserInfo(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, "id", responseDto.RequestId)
 
 	info, err := h.useCase.UserInfo(personId, ctx)
@@ -251,11 +261,12 @@ func (h *UserHandler) UserInfo(c *gin.Context) {
 
 }
 
-func NewUserHandler(useCase *user.UseCase, logger *zap.SugaredLogger, sender *pkg.JSONSender) *UserHandler {
+func NewUserHandler(useCase *user.UseCase, logger *zap.SugaredLogger, sender *pkg.JSONSender, tracer trace.Tracer) *UserHandler {
 	return &UserHandler{
 		useCase:    useCase,
 		logger:     logger,
 		validator:  validator.New(),
 		jsonSender: sender,
+		tracer:     tracer,
 	}
 }
